@@ -20,7 +20,7 @@ export default class Start extends React.Component {
 
     this.state = {
       name: "",
-      bgColor: this.colors.pink,
+      bgColor: this.colors.light,
     };
   }
 
@@ -30,11 +30,8 @@ export default class Start extends React.Component {
   };
 
   colors = {
-    red: "#890000",
-    green: "#1DA01B",
-    gold: "#9D7F15",
-    pink: "#931560",
-    blue: "#1B70A0",
+    light: "#e6e6ff",
+    dark: "#001a4d",
   };
 
   render() {
@@ -62,7 +59,7 @@ export default class Start extends React.Component {
 
             <View style={styles.colorBox}>
               <Text style={styles.chooseColor}>
-                Pick your background color!
+                Pick your background theme!
               </Text>
             </View>
 
@@ -70,45 +67,30 @@ export default class Start extends React.Component {
             <View style={styles.colorArray}>
               <TouchableOpacity
                 accessible={true}
-                accessibilityLabel="red blackground"
-                accessibilityHint="Allows you to add a red background to the chat"
+                accessibilityLabel="light blackground"
+                accessibilityHint="Allows you to add a light background to the chat"
                 accessibilityRole="button"
                 style={styles.color1}
-                onPress={() => this.changeBgColor(this.colors.red)}
+                onPress={() => this.changeBgColor(this.colors.light)}
+                text="light"
               ></TouchableOpacity>
+
               <TouchableOpacity
                 accessible={true}
-                accessibilityLabel="green blackground"
-                accessibilityHint="Allows you to add a green background to the chat"
+                accessibilityLabel="dark blackground"
+                accessibilityHint="Allows you to add a dark background to the chat"
                 accessibilityRole="button"
                 style={styles.color2}
-                onPress={() => this.changeBgColor(this.colors.green)}
-              ></TouchableOpacity>
-              <TouchableOpacity
-                accessible={true}
-                accessibilityLabel="gold blackground"
-                accessibilityHint="Allows you to add a gold background to the chat"
-                accessibilityRole="button"
-                style={styles.color3}
-                onPress={() => this.changeBgColor(this.colors.gold)}
-              ></TouchableOpacity>
-              <TouchableOpacity
-                accessible={true}
-                accessibilityLabel="pink blackground"
-                accessibilityHint="Allows you to add a pink background to the chat"
-                accessibilityRole="button"
-                style={styles.color4}
-                onPress={() => this.changeBgColor(this.colors.pink)}
-              ></TouchableOpacity>
-              <TouchableOpacity
-                accessible={true}
-                accessibilityLabel="blue blackground"
-                accessibilityHint="Allows you to add a blue background to the chat"
-                accessibilityRole="button"
-                style={styles.color5}
-                onPress={() => this.changeBgColor(this.colors.blue)}
+                onPress={() => this.changeBgColor(this.colors.dark)}
               ></TouchableOpacity>
             </View>
+
+            <View>
+              <Text>
+                Light                    Dark
+              </Text>
+            </View>
+
 
             {/*This will allow the user to click on a button and be redirected to the chat page */}
             <Pressable
@@ -202,44 +184,26 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     color: "#757083",
     opacity: 1,
+    alignSelf: "center"
   },
 
   colorArray: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "80%",
+    paddingLeft: "20%",
+    paddingRight: "20%",
   },
 
   color1: {
-    backgroundColor: "#890000",
+    backgroundColor: "#e6e6ff",
     width: 50,
     height: 50,
     borderRadius: 25,
   },
 
   color2: {
-    backgroundColor: "#1DA01B",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-
-  color3: {
-    backgroundColor: "#9D7F15",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-
-  color4: {
-    backgroundColor: "#931560",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-
-  color5: {
-    backgroundColor: "#1B70A0",
+    backgroundColor: "#001a4d",
     width: 50,
     height: 50,
     borderRadius: 25,
