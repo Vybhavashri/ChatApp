@@ -15,6 +15,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import NetInfo
 import NetInfo from '@react-native-community/netinfo';
 
+import CustomActions from "./CustomActions";
+import MapView from 'react-native-maps';
+
 // web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDIYewULwtJfRSDWhtuy16qRXKFfJAhL9A",
@@ -37,6 +40,8 @@ export default class Chat extends Component {
         avatar: '',
       },
       isConnected: false,
+      image: null,
+      location: null,
     };
 
     //initializing firebase
@@ -63,16 +68,19 @@ export default class Chat extends Component {
           name: data.user.name,
           avatar: data.user.avatar,
         },
+        image: data.image || null,
+        location: data.location || null,
       });
     });
     this.setState({
       messages: messages,
     });
+    // save messages to local AsyncStorage
     this.saveMessages();
   };
 
   // get messages from AsyncStorage
-  getMessages = async () => {
+  async getMessages() {
     let messages = '';
     try {
       messages = (await AsyncStorage.getItem('messages')) || [];
@@ -97,6 +105,7 @@ export default class Chat extends Component {
   }
 
   // delete message from asyncStorage
+  // not called in app used in development only
   async deleteMessages() {
     try {
       await AsyncStorage.removeItem("messages");
@@ -110,7 +119,10 @@ export default class Chat extends Component {
 
   componentDidMount() {
     let { name } = this.props.route.params;
+    if (name === '') name = 'UNNAMED'
     this.props.navigation.setOptions({ title: name });
+
+    this.getMessages();
 
     // check the user connection status, online?
     NetInfo.fetch().then(connection => {
@@ -139,6 +151,7 @@ export default class Chat extends Component {
                 name: name,
                 avatar: 'https://placeimg.com/140/140/any',
               },
+              isConnected: true,
             });
 
             //referencing messages of current user
@@ -159,10 +172,12 @@ export default class Chat extends Component {
   }
 
   componentWillUnmount() {
-    // stop listening to authentication
-    this.authUnsubscribe();
-    // stop listening for changes
-    this.unsubscribe();
+    if (this.state.isConnected) {
+      // stop listening to authentication
+      this.authUnsubscribe();
+      // stop listening for changes
+      this.unsubscribe();
+    }
   }
 
   addMessage() {
@@ -173,6 +188,8 @@ export default class Chat extends Component {
       text: message.text || '',
       createdAt: message.createdAt,
       user: this.state.user,
+      image: message.image || null,
+      location: message.location || null,
     });
   }
 
@@ -229,6 +246,31 @@ export default class Chat extends Component {
     }
   }
 
+  renderCustomView(props) {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{
+            width: 150,
+            height: 100,
+            borderRadius: 13,
+            margin: 3
+          }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  }
+
+  renderCustomActions = (props) => <CustomActions {...props} />;
+
   render() {
     let name = this.props.route.params.name;
 
@@ -253,6 +295,8 @@ export default class Chat extends Component {
             name: this.state.name,
             avatar: this.state.user.avatar,
           }}
+          renderActions={this.renderCustomActions}
+          renderCustomView={this.renderCustomView}
         />
         {Platform.OS === 'android' ? (
           <KeyboardAvoidingView behavior="height" />
