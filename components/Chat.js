@@ -33,7 +33,7 @@ export default class Chat extends Component {
     super();
     this.state = {
       messages: [],
-      uid: 0,
+      uid: null,
       user: {
         _id: '',
         name: '',
@@ -77,6 +77,7 @@ export default class Chat extends Component {
     });
     // save messages to local AsyncStorage
     this.saveMessages();
+    this.saveUser();
   };
 
   // get messages from AsyncStorage
@@ -92,6 +93,19 @@ export default class Chat extends Component {
     }
   };
 
+  // get user from AsyncStorage
+  async getUser() {
+    let user = '';
+    try {
+      user = await AsyncStorage.getItem('user') || [];
+      this.setState({
+        user: JSON.parse(user)
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   // save messages on the asyncStorage
   async saveMessages() {
     try {
@@ -99,6 +113,15 @@ export default class Chat extends Component {
         "messages",
         JSON.stringify(this.state.messages)
       );
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  // saves user to asyncStorage
+  async saveUser() {
+    try {
+      await AsyncStorage.setItem('user', JSON.stringify(this.state.user));
     } catch (error) {
       console.log(error.message);
     }
@@ -123,6 +146,7 @@ export default class Chat extends Component {
     this.props.navigation.setOptions({ title: name });
 
     this.getMessages();
+    this.getUser();
 
     // check the user connection status, online?
     NetInfo.fetch().then(connection => {
@@ -151,22 +175,23 @@ export default class Chat extends Component {
                 name: name,
                 avatar: 'https://placeimg.com/140/140/any',
               },
-              isConnected: true,
             });
 
             //referencing messages of current user
             this.refMsgsUser = firebase
               .firestore()
               .collection('messages')
-              .where('uid', '==', this.state.uid);
+              .where('uid', '==', this.state.user.uid);
           });
         // save messages locally to AsyncStorage
         this.saveMessages();
+        this.saveUser();
       } else {
         // the user is offline
         this.setState({ isConnected: false });
         console.log('offline');
         this.getMessages();
+        this.getUser();
       }
     });
   }
@@ -200,6 +225,7 @@ export default class Chat extends Component {
       }),
       () => {
         this.saveMessages();
+        this.saveUser();
         this.addMessage();
       }
     );
@@ -273,9 +299,8 @@ export default class Chat extends Component {
 
   render() {
     let name = this.props.route.params.name;
-
     this.props.navigation.setOptions({ title: name });
-    let bgColor = this.props.route.params.bgColor;
+    const { bgColor } = this.props.route.params.bgColor;
 
     return (
       <View style={{
